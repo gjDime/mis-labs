@@ -14,8 +14,11 @@ class MealsPage extends StatefulWidget {
 
 class _MealsPageState extends State<MealsPage> {
   List<Meal> meals = [];
+  List<Meal> filteredMeals = [];
   final _apiService = ApiService();
-
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  bool _isSearching = false;
   @override
   void initState() {
     super.initState();
@@ -28,6 +31,29 @@ class _MealsPageState extends State<MealsPage> {
     );
     setState(() {
       meals = fetchedMeals;
+      filteredMeals = fetchedMeals;
+    });
+  }
+
+  void _filterMeals() {
+    setState(() {
+      filteredMeals = _searchQuery.isEmpty ? meals : meals
+          .where(
+            (meal) =>
+                meal.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+          )
+          .toList();
+    });
+  }
+
+  Future _searchMealsInApi(String query) async {
+    setState(() {
+      _isSearching = true;
+    });
+    final searchedMeals = await _apiService.searchMeals(query);
+    setState(() {
+      _isSearching = false;
+      filteredMeals = searchedMeals;
     });
   }
 
@@ -38,19 +64,74 @@ class _MealsPageState extends State<MealsPage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('Meals Page'),
       ),
-      body: Container(
+      body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 1.5,
-            crossAxisSpacing: 8.0,
-            mainAxisSpacing: 8.0,
-          ),
-          itemCount: meals.length,
-          itemBuilder: (context, index) {
-            return MealCard(meal: meals[index]);
-          },
+        child: Column(
+          children: [
+            TextField(
+              controller: _searchController,
+              decoration: const InputDecoration(
+                labelText: 'Search Meals',
+                border: OutlineInputBorder(),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+                _filterMeals();
+              },
+            ),
+            filteredMeals.isEmpty && _searchQuery.isNotEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.search_off,
+                          size: 64,
+                          color: Colors.grey,
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'No meal found',
+                          style: TextStyle(fontSize: 18, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 8),
+                        TextButton(
+                          onPressed: _isSearching
+                              ? null
+                              : () async {
+                                  await _searchMealsInApi(_searchQuery);
+                                },
+                          child: _isSearching
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Text('Search in API'),
+                        ),
+                      ],
+                    ),
+                  )
+                : Expanded(
+                    child: GridView.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 1.5,
+                            crossAxisSpacing: 8.0,
+                            mainAxisSpacing: 8.0,
+                          ),
+                      itemCount: filteredMeals.length,
+                      itemBuilder: (context, index) {
+                        return MealCard(meal: filteredMeals[index]);
+                      },
+                    ),
+                  ),
+          ],
         ),
       ),
     );

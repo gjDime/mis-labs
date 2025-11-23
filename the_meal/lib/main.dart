@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
           return MealsPage(category: categoryName);
         },
         "/meal": (context) {
-          final mealId = ModalRoute.of(context)!.settings.arguments as String;
+          final mealId = ModalRoute.of(context)!.settings.arguments as String?;
           return MealDetailsPage(mealId: mealId);
         },
       },
