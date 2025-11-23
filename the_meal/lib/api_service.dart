@@ -54,4 +54,32 @@ class ApiService {
       throw Exception('Failed to load meal details for id $id');
     }
   }
+
+  Future<List<Meal>> searchMeals(String query) async {
+    final response = await http.get(Uri.parse("${baseUrl}search.php?s=$query"));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+
+      final List mealsJson = data['meals'] ?? [];
+
+      return mealsJson.map((json) => Meal.fromJson(json)).toList();
+    } else {
+      throw Exception('Failed to search meals for query $query');
+    }
+  }
+
+  Future<MealDetails> fetchRandomMeal() async {
+    final response = await http.get(Uri.parse("${baseUrl}random.php"));
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = json.decode(response.body);
+
+      final List mealsJson = data['meals'] ?? [];
+
+      return MealDetails.fromJson(mealsJson[0]);
+    } else {
+      throw Exception('Failed to load random meals');
+    }
+  }
 }
