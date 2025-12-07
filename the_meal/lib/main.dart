@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:the_meal/models/meal.dart';
 import 'package:the_meal/screens/categories.dart';
+import 'package:the_meal/screens/favourites.dart';
 import 'package:the_meal/screens/meal_details.dart';
 import 'package:the_meal/screens/meals.dart';
 
@@ -30,6 +30,7 @@ class MyApp extends StatelessWidget {
           final mealId = ModalRoute.of(context)!.settings.arguments as String?;
           return MealDetailsPage(mealId: mealId);
         },
+        "/favourites": (context) => const Favourites(),
       },
     );
   }

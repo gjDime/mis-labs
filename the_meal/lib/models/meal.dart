@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Meal {
   final String id;
   final String name;
@@ -11,5 +13,14 @@ class Meal {
       name: json['strMeal'] as String,
       image: json['strMealThumb'] as String,
     );
+  }
+
+  factory Meal.fromJsonString(String jsonString) {
+    final Map<String, dynamic> json = jsonDecode(jsonString);
+    return Meal.fromJson(json);
+  }
+
+  String toJson() {
+    return jsonEncode({'idMeal': id, 'strMeal': name, 'strMealThumb': image});
   }
 }

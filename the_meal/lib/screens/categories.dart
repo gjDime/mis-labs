@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:the_meal/api_service.dart';
+import 'package:the_meal/services/api_service.dart';
 import 'package:the_meal/models/category.dart';
 import 'package:the_meal/widgets/category_card.dart';
 
@@ -55,6 +55,14 @@ class _CategoriesPageState extends State<CategoriesPage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('The Meal App'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.favorite),
+            onPressed: () {
+              Navigator.pushNamed(context, '/favourites');
+            },
+          ),
+        ],
       ),
       body: Container(
         padding: const EdgeInsets.all(8.0),
